@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script>
+        async function loginUser(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+
+            if (username.length < 2 || username.length > 34) {
+                alert('Username must be between 2 and 34 characters');
+                return;
+            }
+
+            if (password.length < 6 || password.length > 125) {
+                alert('Username must be between 6 and 125 characters');
+                return;
+            }
+
+
+            const response = await fetch('/api/v1/set_cookies', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: username, password: password }),
+            });
+
+            if (response.ok) {
+                window.location.href = '/';
+            } else {
+                alert('Login failed. Please try again.');
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Login</h1>
+    <form onsubmit="loginUser(event)">
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username" required min="2" max="34"><br><br>
+
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required min="6" max="125"><br><br>
+
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 99.95%;
+            border: 1px solid #ccc;
+        }
+
+        #messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            max-width: auto;
+            position: relative;
+            max-width: 80%;
+            overflow-wrap: break-word;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+
+        #input-container {
+            display: flex;
+            padding: 10px;
+            background-color: #fff;
+            border-top: 1px solid #ccc;
+        }
+
+        #input-message {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #send-button {
+            margin-left: 10px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.25s;
+        }
+
+        #send-button:hover {
+            background-color: #006de2;
+        }
+
+        #dashboard-button {
+            margin-left: 10px;
+            width: 100px;
+            padding: 10px;
+            background-color: #0044ff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.25s;
+        }
+        #dashboard-button:hover {
+            background-color: #2b00ff;
+        }
+        #context-menu {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+            transition: background-color 0.25s;
+        }
+
+        #context-menu ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #context-menu li {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        #context-menu li:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="context-menu">
+        <ul>
+            <li onclick="handleMenuAction('delete')">Delete</li>
+        </ul>
+    </div>
+
+    <div id="chat-container">
+        <div id="messages">
+        </div>
+        <div id="input-container">
+            <input type="text" id="input-message" placeholder="Type your message here...">
+            <button id="send-button">Send</button>
+            <button id="dashboard-button">Go to dashboard</button>
+        </div>
+    </div>
+
+    <script src="/static/main.js"></script>
+    <script>
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        function handleMenuAction(action) {
+            if (action === 'delete') {
+            response = fetch(`/api/v1/messages/${selectedMessageId}`, { 
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `${getCookie('token')}`
+                },
+            })
+        }
+        }
+
+        document.getElementById('dashboard-button').addEventListener('click', function() {
+            window.location.href = '/dashboard';
+        });
+
+        const contextMenu = document.getElementById("context-menu");
+        let selectedMessageId = null;
+
+        document.addEventListener("contextmenu", function(event) {
+            const messageElement = event.target.closest('.message');
+            if (messageElement) {
+                if (messageElement.getAttribute('isowner') == 'true') {
+                    event.preventDefault();
+                    selectedMessageId = messageElement.getAttribute('data-id');
+                    contextMenu.style.top = `${event.pageY}px`;
+                    contextMenu.style.left = `${event.pageX}px`;
+                    contextMenu.style.display = "block";
+                } else {
+                    contextMenu.style.display = "none";
+                }
+            } else {
+                contextMenu.style.display = "none";
+            }
+        });
+
+        document.addEventListener("click", function(event) {
+            contextMenu.style.display = "none";
+        });
+    </script>
+</body>
+</html>
